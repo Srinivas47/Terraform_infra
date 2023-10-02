@@ -18,6 +18,15 @@ resource "aws_subnet" "vpn-subnet" {
 }
 
 # creating the subnets for the web,app,db vpcs
-resource "aws_subnet" "web-s" {
-  
+resource "aws_subnet" "web-s" {  
+    cidr_block = var.aws_vpc_server.vpc_id
 }
+
+# creating the igw for the vpn-vpc
+resource "aws_internet_gateway" "web-app-db-igw" {
+    vpc_id = var.aws_vpc-vpn.id
+  tags = {
+    Name = "web-app-db-igw"
+  }
+}
+# creating the 
