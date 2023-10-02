@@ -1,71 +1,9 @@
 
 
-# Create the Web, App, and DB VPC
-resource "aws_vpc" "web_app_db" {
-  cidr_block = "10.1.0.0/16" # Set your Web, App, DB VPC IP range
-  enable_dns_support = true
-  enable_dns_hostnames = true
-  tags = {
-    Name = "web-app-db-vpc"
-  }
-}
 
-# Create an Internet Gateway for the Web, App, and DB VPC
-resource "aws_internet_gateway" "web_app_db" {
-  vpc_id = aws_vpc.web_app_db.id
-  tags = {
-    Name = "web-app-db-igw"
-  }
-}
 
-# Create public subnet for the Web server
-resource "aws_subnet" "public" {
-  vpc_id     = aws_vpc.web_app_db.id
-  cidr_block = "10.1.0.0/24" # Set your public subnet IP range
-  availability_zone = "us-east-1a" # Change to your desired availability zone
-  map_public_ip_on_launch = true
-  tags = {
-    Name = "web-subnet"
-  }
-}
 
-# Create private subnets for the App and DB servers
-resource "aws_subnet" "private_app" {
-  vpc_id     = aws_vpc.web_app_db.id
-  cidr_block = "10.1.1.0/24" # Set your private App subnet IP range
-  availability_zone = "us-east-1b" # Change to your desired availability zone
-  tags = {
-    Name = "app-subnet"
-  }
-}
 
-resource "aws_subnet" "private_db" {
-  vpc_id     = aws_vpc.web_app_db.id
-  cidr_block = "10.1.2.0/24" # Set your private DB subnet IP range
-  availability_zone = "us-east-1c" # Change to your desired availability zone
-  tags = {
-    Name = "db-subnet"
-  }
-}
-
-# Create a NAT Gateway in the public subnet
-resource "aws_nat_gateway" "nat" {
-  allocation_id = aws_eip.nat.id
-  subnet_id    = aws_subnet.public.id
-  tags = {
-    Name = "nat-gateway"
-  }
-}
-
-# Create an Elastic IP for the NAT Gateway
-resource "aws_eip" "nat" {
-  instance = aws_instance.nat.id
-}
-
-# Create a route table for the private subnets
-resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.web_app_db.id
-}
 
 # Create a default route to the NAT Gateway for private subnets
 resource "aws_route" "private_default" {
